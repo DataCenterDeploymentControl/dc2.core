@@ -1,0 +1,10 @@
+setuptools
+SQLAlchemy
+psycopg2
+alembic
+python3-memcached
+flask
+flask-restful
+flask-migrate
+flask-sqlalchemy
+sphinx

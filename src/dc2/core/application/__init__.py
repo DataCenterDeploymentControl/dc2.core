@@ -35,21 +35,38 @@ from ..database import init_db
 from ..cache import init_app_cache, app_cache
 
 
-def init_application(app):
+def init_application(app, manager=None):
     global app_cache
+    app.config.from_envvar("DC2_CONFIGURATION")
     init_db(app)
-    if app_cache is None:
-        app_cache = init_app_cache(app.config['MEMCACHE_SERVERS'], app.config['DEBUG'])
+    if 'RUN_VIA_MANAGER' in app.config and app.config['RUN_VIA_MANAGER'] and manager is not None:
+        # import Manager applications
+        for module in app.config['MODULES']:
+            if 'enabled' in module and module['enabled']:
+                try:
+                    mod = importlib.import_module(module['module'])
+                    mod.init_manager_commands(manager)
+                except Exception as e:
+                    raise e
+    else:
+        if app_cache is None:
+            app_cache = init_app_cache(app.config['MEMCACHE_SERVERS'], app.config['DEBUG'])
 
-    for authenticator in app.config['AUTHENTICATORS']:
-        importlib.import_module(authenticator)
+        for authenticator in app.config['AUTHENTICATORS']:
+            importlib.import_module(authenticator)
 
-    for module in app.config['MODULES']:
-        if 'enabled' in module and module['enabled']:
-            mod = importlib.import_module(module['module'])
-            for prefix in module['url_prefix']:
-                bp = mod.init_blueprint(prefix)
-                app.register_blueprint(bp, url_prefix="{0}{1}".format(app.config['API_PREFIX'], prefix['prefix']))
-    print(app.url_map)
+        for module in app.config['MODULES']:
+            print(module)
+            if 'enabled' in module and module['enabled']:
+                try:
+                    mod = importlib.import_module(module['module'])
+
+                    for prefix in module['url_prefix']:
+                        bp = mod.init_blueprint(prefix)
+                        app.register_blueprint(bp, url_prefix="{0}{1}".format(app.config['API_PREFIX'], prefix['prefix']))
+                except Exception as e:
+                    raise e
+        print(app.url_map)
+
 
 

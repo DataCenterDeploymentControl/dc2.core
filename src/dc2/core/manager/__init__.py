@@ -20,26 +20,21 @@
 
 __author__ = 'stephan.adig'
 
+__all__ = ['manager']
+
 try:
-    from dc2.core.database import DB
+    from flask_script import Manager
+    from flask_migrate import Migrate, MigrateCommand
 except ImportError as e:
     raise(e)
 
-import datetime
+from ..application import app, init_application
+from ..database import DB
 
-class User(DB.Model):
-    __tablename__ = 'users'
+app.config['RUN_VIA_MANAGER'] = True
+manager = Manager(app)
+init_application(app, manager)
+migrate = Migrate(app, DB)
+manager.add_command('db', MigrateCommand)
 
-    id = DB.Column(DB.Integer, primary_key=True)
-    username = DB.Column(DB.String, unique=True, nullable=False)
-    email = DB.Column(DB.String, unique=True, nullable=False)
-    name = DB.Column(DB.String, nullable=True)
-    created_at = DB.Column(DB.DateTime, default=datetime.datetime.now())
-    updated_at = DB.Column(DB.DateTime, onupdate=datetime.datetime.now())
-    groups = DB.relationship("Group", secondary='users2groups')
 
-    @property
-    def to_dict(self):
-        return dict(id=self.id, username=self.username, email=self.email, name=self.name,
-                    created_at=self.created_at.isoformat(),
-                    updated_at=self.updated_at.isoformat() if self.updated_at is not None else None)

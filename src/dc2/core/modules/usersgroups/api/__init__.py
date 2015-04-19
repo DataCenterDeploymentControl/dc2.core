@@ -19,3 +19,11 @@
 #
 
 __author__ = 'stephan.adig'
+
+from .v1 import init_versioned_endpoints
+
+
+def init_endpoints(bp_api=None):
+    if bp_api is None:
+        raise ValueError('bp_api can not be None')
+    init_versioned_endpoints(bp_api)

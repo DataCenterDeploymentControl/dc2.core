@@ -18,28 +18,32 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-__author__ = 'stephan.adig'
+import sys
+import datetime
 
 try:
     from dc2.core.database import DB
 except ImportError as e:
-    raise(e)
+    raise e
 
-import datetime
+__author__ = "Stephan Adig <sh@sourcecode.de>"
 
-class User(DB.Model):
-    __tablename__ = 'users'
+
+class AuthToken(DB.Model):
+    __tablename__ = 'authtokens'
 
     id = DB.Column(DB.Integer, primary_key=True)
-    username = DB.Column(DB.String, unique=True, nullable=False)
-    email = DB.Column(DB.String, unique=True, nullable=False)
-    name = DB.Column(DB.String, nullable=True)
+    token = DB.Column(DB.String, unique=True, nullable=False)
     created_at = DB.Column(DB.DateTime, default=datetime.datetime.now())
-    updated_at = DB.Column(DB.DateTime, onupdate=datetime.datetime.now())
-    groups = DB.relationship("Group", secondary='users2groups')
+    is_active = DB.Column(DB.Boolean, default=False)
+    user_id = DB.Column(DB.Integer, DB.ForeignKey('users.id'))
+    user = DB.relationship('User', uselist=False)
 
     @property
     def to_dict(self):
-        return dict(id=self.id, username=self.username, email=self.email, name=self.name,
-                    created_at=self.created_at.isoformat(),
-                    updated_at=self.updated_at.isoformat() if self.updated_at is not None else None)
+        """
+
+        :return: dict
+        """
+        rec = dict(token=self.token, user=self.user.username)
+        return rec

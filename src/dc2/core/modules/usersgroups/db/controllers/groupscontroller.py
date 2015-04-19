@@ -80,8 +80,8 @@ class GroupsController(BaseController):
                 return None
         return None
 
-    def new(self, *args, **kwargs):
-        group = Group(**kwargs)
+    def new(self, groupname=None, description=None):
+        group = Group(groupname=groupname,desc=description)
         try:
             record = self.add(group)
             return record

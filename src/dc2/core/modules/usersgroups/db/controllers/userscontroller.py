@@ -36,7 +36,15 @@ class UsersController(BaseController):
 
     def __init__(self, session=None):
         super(UsersController, self).__init__(session)
-        self._ctl_groups = GroupsController(session)
+        self._ctl_groups = GroupsController(self._session)
+
+    def list(self):
+        try:
+            result = User.query.all()
+            return result
+        except ImportError as e:
+            print(e)
+            return None
 
     def new(self, *args, **kwargs):
         try:

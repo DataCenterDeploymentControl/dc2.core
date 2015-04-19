@@ -20,8 +20,10 @@
 
 __author__ = 'stephan.adig'
 
-from functools import wraps
+__all__ = ['needs_authentication']
 
+
+from functools import wraps
 
 def needs_authentication(f):
     try:

@@ -19,27 +19,30 @@
 #
 
 __author__ = 'stephan.adig'
+try:
+    from flask import Blueprint
+    from flask_restful import Api
+except ImportError as e:
+    raise e
 
 try:
-    from dc2.core.database import DB
+    from dc2.core.application import app
 except ImportError as e:
-    raise(e)
+    raise e
 
-import datetime
 
-class User(DB.Model):
-    __tablename__ = 'users'
+__all__ = ['init_blueprint']
 
-    id = DB.Column(DB.Integer, primary_key=True)
-    username = DB.Column(DB.String, unique=True, nullable=False)
-    email = DB.Column(DB.String, unique=True, nullable=False)
-    name = DB.Column(DB.String, nullable=True)
-    created_at = DB.Column(DB.DateTime, default=datetime.datetime.now())
-    updated_at = DB.Column(DB.DateTime, onupdate=datetime.datetime.now())
-    groups = DB.relationship("Group", secondary='users2groups')
+if 'RUN_VIA_MANAGER' in app.config and app.config['RUN_VIA_MANAGER']:
+    from .db import models
 
-    @property
-    def to_dict(self):
-        return dict(id=self.id, username=self.username, email=self.email, name=self.name,
-                    created_at=self.created_at.isoformat(),
-                    updated_at=self.updated_at.isoformat() if self.updated_at is not None else None)
+from .api import init_endpoints
+
+def init_blueprint(module=None):
+    if module is not None:
+        bp = Blueprint(module['name'], module['import_name'])
+        bp_api = Api(bp)
+        init_endpoints(bp_api)
+        return bp
+    return None
+

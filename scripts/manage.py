@@ -21,21 +21,7 @@
 
 __author__ = 'stephan.adig'
 
-try:
-    from flask_script import Manager
-    from flask_migrate import Migrate, MigrateCommand
-except ImportError as e:
-    raise e
-
-from dc2.core.application import app, init_application
-from dc2.core.database import DB
-
-app.config.from_envvar("DC2_CONFIGURATION")
-init_application(app)
-
-migrate = Migrate(app, DB)
-manager = Manager(app)
-manager.add_command('db', MigrateCommand)
+from dc2.core.manager import manager
 
 if __name__ == '__main__':
     manager.run()

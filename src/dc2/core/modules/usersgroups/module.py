@@ -26,17 +26,33 @@ try:
 except ImportError as e:
     raise e
 
+try:
+    from dc2.core.application import app
+except ImportError as e:
+    raise e
+
+
 __all__ = ['init_blueprint']
 
-from .db import models
+if 'RUN_VIA_MANAGER' in app.config and app.config['RUN_VIA_MANAGER']:
+    from .db import models
+
+from .api import init_endpoints
+
 
 def init_blueprint(module=None):
     if module is not None:
         bp = Blueprint(module['name'], module['import_name'])
         bp_api = Api(bp)
+        init_endpoints(bp_api)
         return bp
     return None
 
+
+def init_manager_commands(manager=None):
+    if manager is None:
+        raise ValueError('manager can not be None')
+    pass
 
 
 

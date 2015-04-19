@@ -19,3 +19,15 @@
 #
 
 __author__ = 'stephan.adig'
+
+from .users import UserCollection, UserRecords
+from .groups import GroupCollection, GroupRecords
+
+
+def init_versioned_endpoints(bp_api=None):
+    if bp_api is None:
+        raise ValueError('bp_api can not be None')
+    bp_api.add_resource(UserCollection, '/v1/users')
+    bp_api.add_resource(UserRecords, '/v1/users/<string:id>')
+    bp_api.add_resource(GroupCollection, '/v1/groups')
+    bp_api.add_resource(GroupRecords, '/v1/groups/<string:groupname>')

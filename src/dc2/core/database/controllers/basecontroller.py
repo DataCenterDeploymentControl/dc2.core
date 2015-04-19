@@ -21,12 +21,13 @@
 __author__ = 'stephan.adig'
 
 
+from ..base import DB
 class BaseController(object):
 
     def __init__(self, session=None):
-        if session is None:
-            raise ValueError('session object is None')
-        self._session = session
+        self._session = DB.session
+        if session is not None:
+            self._session = session
 
     def list(self):
         pass

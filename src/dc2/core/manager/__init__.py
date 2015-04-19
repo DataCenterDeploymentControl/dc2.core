@@ -31,10 +31,13 @@ except ImportError as e:
 from ..application import app, init_application
 from ..database import DB
 
+
 app.config['RUN_VIA_MANAGER'] = True
 manager = Manager(app)
 init_application(app, manager)
 migrate = Migrate(app, DB)
 manager.add_command('db', MigrateCommand)
 
+
+from .seed import seed
 

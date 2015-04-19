@@ -20,41 +20,17 @@
 
 __author__ = 'stephan.adig'
 
-try:
-    from flask import Blueprint
-    from flask_restful import Api
-except ImportError as e:
-    raise e
-
-try:
-    from dc2.core.application import app
-except ImportError as e:
-    raise e
+from dc2.core.manager.globals import add_seed_method
 
 
-__all__ = ['init_blueprint', 'init_manager_commands']
+def seed_initialize_user():
+    print('Initialize Users')
+    return True
+def seed_initialize_groups():
+    print('Initialize Groups')
+    return False
 
-if 'RUN_VIA_MANAGER' in app.config and app.config['RUN_VIA_MANAGER']:
-    from .db import models
-
-from .api import init_endpoints
-
-
-def init_blueprint(module=None):
-    if module is not None:
-        bp = Blueprint(module['name'], module['import_name'])
-        bp_api = Api(bp)
-        init_endpoints(bp_api)
-        return bp
-    return None
-
-
-def init_manager_commands(manager=None):
-    if manager is None:
-        raise ValueError('manager can not be None')
-    from .manager import init_seed_commands
-    init_seed_commands()
-
-
-
+def init_seed_commands():
+    add_seed_method('usersgroups', 'initialize', 'seed_initialize_user', seed_initialize_user)
+    add_seed_method('usersgroups', 'initialize', 'seed_initialize_group', seed_initialize_groups)
 

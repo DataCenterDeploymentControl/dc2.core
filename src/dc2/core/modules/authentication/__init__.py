@@ -20,4 +20,4 @@
 
 __author__ = 'stephan.adig'
 
-from .module import init_blueprint
+from .module import init_blueprint, init_manager_commands

@@ -31,7 +31,7 @@ except ImportError as e:
     raise e
 
 
-__all__ = ['init_blueprint']
+__all__ = ['init_blueprint', 'init_manager_commands']
 
 if 'RUN_VIA_MANAGER' in app.config and app.config['RUN_VIA_MANAGER']:
     from .db import models
@@ -45,4 +45,10 @@ def init_blueprint(module=None):
         init_endpoints(bp_api)
         return bp
     return None
+
+
+def init_manager_commands(manager=None):
+    if manager is None:
+        raise ValueError('manager can not be None')
+    pass
 

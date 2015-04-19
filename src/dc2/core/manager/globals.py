@@ -20,41 +20,24 @@
 
 __author__ = 'stephan.adig'
 
-try:
-    from flask import Blueprint
-    from flask_restful import Api
-except ImportError as e:
-    raise e
+__all__ = ['SEED_METHODS', 'add_seed_method']
 
-try:
-    from dc2.core.application import app
-except ImportError as e:
-    raise e
+SEED_METHODS = {}
 
+FLAGS = [
+    'initialize',
+    'upgrade',
+    'downgrade'
+]
 
-__all__ = ['init_blueprint', 'init_manager_commands']
+def add_seed_method(name=None, flag=None, method_name=None, method=None):
+    if name is not None and method_name is not None and method is not None and flag is not None:
+        if name not in SEED_METHODS.keys():
+            SEED_METHODS[name] = {}
+        if flag.lower() in FLAGS:
+            if flag.lower() not in SEED_METHODS[name]:
+                SEED_METHODS[name][flag.lower()] = {}
 
-if 'RUN_VIA_MANAGER' in app.config and app.config['RUN_VIA_MANAGER']:
-    from .db import models
-
-from .api import init_endpoints
-
-
-def init_blueprint(module=None):
-    if module is not None:
-        bp = Blueprint(module['name'], module['import_name'])
-        bp_api = Api(bp)
-        init_endpoints(bp_api)
-        return bp
-    return None
-
-
-def init_manager_commands(manager=None):
-    if manager is None:
-        raise ValueError('manager can not be None')
-    from .manager import init_seed_commands
-    init_seed_commands()
-
-
-
+            if method_name not in SEED_METHODS[name][flag.lower()].keys():
+                SEED_METHODS[name][flag.lower()].update({method_name: method})
 

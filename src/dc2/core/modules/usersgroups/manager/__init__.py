@@ -20,17 +20,32 @@
 
 __author__ = 'stephan.adig'
 
+__all__ = ['init_seed_commands']
+
 from dc2.core.manager.globals import add_seed_method
 
+from ..db.controllers import UsersController
 
 def seed_initialize_user():
     print('Initialize Users')
+    print('Checking for Admin User')
+    ctl_user = UsersController()
+
+    admin = ctl_user.get(username='admin')
+    print('{0}'.format(admin))
+    if admin is None:
+        admin = ctl_user.new(username="admin", email="admin@domain.tld", name="Admin User", groups=['admin'])
+        print('{0}'.format(admin))
+        if admin is not None:
+            return True
+        return False
     return True
+
 def seed_initialize_groups():
     print('Initialize Groups')
     return False
 
 def init_seed_commands():
-    add_seed_method('usersgroups', 'initialize', 'seed_initialize_user', seed_initialize_user)
-    add_seed_method('usersgroups', 'initialize', 'seed_initialize_group', seed_initialize_groups)
+    add_seed_method('usersgroups', 'initialize', '01_seed_initialize_user', seed_initialize_user)
+    add_seed_method('usersgroups', 'initialize', '02_seed_initialize_group', seed_initialize_groups)
 

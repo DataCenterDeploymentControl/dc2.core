@@ -66,7 +66,7 @@ class UsersController(BaseController):
                 password, hashstring = pw_generator(size=12)
                 record.password = Password(password=hashstring)
             if groups is not None and isinstance(groups, list):
-                groups_record = self._ctl_groups.find_in(groups)
+                groups_record = self._ctl_groups.find_in_groupnames(groups)
                 record.groups = groups_record
             try:
                 record = self.add(record)
@@ -77,6 +77,12 @@ class UsersController(BaseController):
         except Exception as e:
             print(e)
             return None
+
+    def get(self, username=None):
+        if username is not None:
+            user = User.query.filter_by(username=username).first()
+            return user
+        return None
 
     def add_groups(self, user=None, groupnames=None):
         if user is not None and groupnames is not None and isinstance(groupnames, list):

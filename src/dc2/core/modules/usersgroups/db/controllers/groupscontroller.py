@@ -60,7 +60,7 @@ class GroupsController(BaseController):
             return self.find(groupname=groupname)
         return None
 
-    def find_in_groupnames(self, groupname=None):
+    def find_in_groupnames(self, groupnames=None):
         if groupnames is not None and isinstance(groupnames, list):
             try:
                 result = Group.query.filter(Group.groupname.in_(groupnames)).all()

@@ -38,6 +38,7 @@ if 'RUN_VIA_MANAGER' in app.config and app.config['RUN_VIA_MANAGER']:
 
 from .api import init_endpoints
 
+
 def init_blueprint(module=None):
     if module is not None:
         bp = Blueprint(module['name'], module['import_name'])

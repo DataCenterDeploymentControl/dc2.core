@@ -34,6 +34,7 @@ class User(DB.Model):
     username = DB.Column(DB.String, unique=True, nullable=False)
     email = DB.Column(DB.String, unique=True, nullable=False)
     name = DB.Column(DB.String, nullable=True)
+    password = DB.relationship("Password", uselist=False, backref="users", cascade="save-update, merge, delete")
     created_at = DB.Column(DB.DateTime, default=datetime.datetime.now())
     updated_at = DB.Column(DB.DateTime, onupdate=datetime.datetime.now())
     groups = DB.relationship("Group", secondary='users2groups')

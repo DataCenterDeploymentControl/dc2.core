@@ -20,15 +20,27 @@
 
 __author__ = 'stephan.adig'
 
+__all__ = []
+
 try:
-    from dc2.core.database import DB
+    from dc2.core.auth import register_auth_method
+    from dc2.core.helpers import hash_generator
 except ImportError as e:
     raise e
 
+from ..db.controllers import UsersController
 
-class Password(DB.Model):
-    __tablename__ = 'passwords'
 
-    id = DB.Column(DB.Integer, primary_key=True)
-    password = DB.Column(DB.String, nullable=False)
-    user_id = DB.Column(DB.Integer, DB.ForeignKey('users.id'))
+def do_local_authentication(email=None, password=None):
+    if email is not None and password is not None:
+        ctl_users = UsersController()
+        user = ctl_users.get(email=email)
+        if user is not None:
+            if user.password.password == hash_generator(password):
+                return True, user
+        return False, None
+
+register_auth_method('local', do_local_authentication)
+
+
+

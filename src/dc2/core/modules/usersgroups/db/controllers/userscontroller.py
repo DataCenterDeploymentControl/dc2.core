@@ -52,7 +52,7 @@ class UsersController(BaseController):
             groups = None
             if pw is not None:
                 password = pw
-            if grps is not None and isinstance(grps, list):
+            if grps is not None and isinstance(grps, list) and len(grps) > 0:
                 groups = grps
             record = User(username=username, name=name, email=email)
             print(record)
@@ -67,7 +67,6 @@ class UsersController(BaseController):
                 if groups_record is None:
                     return None, None
                 record.groups = groups_record
-
             try:
                 record = self.add(record)
                 return record, password

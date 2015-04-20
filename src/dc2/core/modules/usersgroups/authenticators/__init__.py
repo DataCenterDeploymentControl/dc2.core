@@ -20,15 +20,4 @@
 
 __author__ = 'stephan.adig'
 
-try:
-    from dc2.core.database import DB
-except ImportError as e:
-    raise e
-
-
-class Password(DB.Model):
-    __tablename__ = 'passwords'
-
-    id = DB.Column(DB.Integer, primary_key=True)
-    password = DB.Column(DB.String, nullable=False)
-    user_id = DB.Column(DB.Integer, DB.ForeignKey('users.id'))
+from .auth_local import *

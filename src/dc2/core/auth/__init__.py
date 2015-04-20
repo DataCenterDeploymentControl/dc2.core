@@ -31,7 +31,7 @@ def register_auth_method(auth_name=None, auth_method_func=None):
             AUTH_TYPES.append(auth_name)
 
         if auth_name not in AUTH_TYPE_METHODS.keys():
-            AUTH_TYPE_METHODS.append(
+            AUTH_TYPE_METHODS.update(
                 {
                     auth_name: {'authfunc': auth_method_func}
                 }

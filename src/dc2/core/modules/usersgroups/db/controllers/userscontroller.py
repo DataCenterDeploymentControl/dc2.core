@@ -46,19 +46,16 @@ class UsersController(BaseController):
             print(e)
             return None
 
-    def new(self, *args, **kwargs):
+    def new(self, username=None, name=None, email=None, pw=None, grps=[]):
         try:
             password = None
             groups = None
-            if 'password' in kwargs:
-                password = kwargs['password']
-                del kwargs['password']
-
-            if 'groups' in kwargs:
-                groups = kwargs['groups']
-                del kwargs['groups']
-
-            record = User(**kwargs)
+            if pw is not None:
+                password = pw
+            if grps is not None and isinstance(grps, list):
+                groups = grps
+            record = User(username=username, name=name, email=email)
+            print(record)
             if password is not None:
                 pw = Password(password=hash_generator(password))
                 record.password = pw
@@ -67,16 +64,20 @@ class UsersController(BaseController):
                 record.password = Password(password=hashstring)
             if groups is not None and isinstance(groups, list):
                 groups_record = self._ctl_groups.find_in_groupnames(groups)
+                if groups_record is None:
+                    return None, None
                 record.groups = groups_record
+
             try:
                 record = self.add(record)
                 return record, password
             except Exception as e:
                 print(e)
-                return None
+                print("exception")
+                return None, None
         except Exception as e:
             print(e)
-            return None
+            return None, None
 
     def get(self, username=None):
         if username is not None:

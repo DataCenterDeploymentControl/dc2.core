@@ -42,7 +42,14 @@ class BaseController(object):
         pass
 
     def _add_or_update(self, record=None):
-        pass
+        try:
+            if record is not None:
+                self._session.add(record)
+                self._session.commit()
+                return record
+        except IntegrityError as e:
+            print(e)
+            return None
 
     def add(self, record=None):
         result = self._add_or_update(record)

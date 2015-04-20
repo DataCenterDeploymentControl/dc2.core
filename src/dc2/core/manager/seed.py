@@ -31,7 +31,7 @@ from .globals import SEED_METHODS
 def seed(initialize=False, upgrade=False, downgrade=False):
     for seed in SEED_METHODS.keys():
         if initialize:
-            for method in SEED_METHODS[seed]['initialize'].keys():
+            for method in sorted(SEED_METHODS[seed]['initialize'].keys()):
                 if not SEED_METHODS[seed]['initialize'][method]():
                     print('Something went wrong in {0}: {1} ==> {2}'.format(seed, 'initialize', method))
         elif upgrade:

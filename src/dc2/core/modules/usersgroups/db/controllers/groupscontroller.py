@@ -81,7 +81,7 @@ class GroupsController(BaseController):
         return None
 
     def new(self, groupname=None, description=None):
-        group = Group(groupname=groupname,desc=description)
+        group = Group(groupname=groupname,descr=description)
         try:
             record = self.add(group)
             return record

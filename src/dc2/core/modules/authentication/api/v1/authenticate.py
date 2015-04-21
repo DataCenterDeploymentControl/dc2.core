@@ -20,12 +20,6 @@
 
 __author__ = 'stephan.adig'
 
-try:
-    from dc2.core.database import DB
-    from dc2.core.cache import app_cache
-    from dc2.core.auth import AUTH_TYPES, AUTH_TYPE_METHODS
-except ImportError as e:
-    raise e
 
 try:
     from flask import request
@@ -36,6 +30,13 @@ except ImportError as e:
     raise (e)
 
 from dc2.core.modules.authentication.db.controllers import AuthTokenController
+
+try:
+    from dc2.core.database import DB
+    from dc2.core.application import app_cache
+    from dc2.core.auth import AUTH_TYPES, AUTH_TYPE_METHODS
+except ImportError as e:
+    raise e
 
 _auth_parser = RequestParser()
 _auth_parser.add_argument('email', type=str, required=True, location='json', help="email")
@@ -52,7 +53,8 @@ class Authenticate(RestResource):
         args = _auth_parser.parse_args()
         try:
             if args.auth_type.lower() in AUTH_TYPES:
-                is_authenticated, user = AUTH_TYPE_METHODS[args.auth_type.lower()]['authfunc'](args)
+                is_authenticated, user = AUTH_TYPE_METHODS[args.auth_type.lower()]['authfunc'](email=args.email, password=args.password)
+
                 if is_authenticated:
                     old_token = self._ctl_auth.find(user=user)
                     if old_token is not None:
@@ -65,11 +67,11 @@ class Authenticate(RestResource):
                         app_cache.set(token.token, {
                             'is_authenticated': is_authenticated,
                             'user': user.to_dict}, 5 * 60)
-                    return {
-                        'authenticated': is_authenticated,
-                        'user': user.to_dict
-                    }, 200, {'X-DC2-Auth-Token': token.token,
-                             'X-DC2-Auth-User': user.username}
+                        return {
+                            'authenticated': is_authenticated,
+                            'user': user.to_dict
+                        }, 200, {'X-DC2-Auth-Token': token.token,
+                                 'X-DC2-Auth-User': user.username}
         except Exception as e:
             # TODO: Change to logger
             print(e)

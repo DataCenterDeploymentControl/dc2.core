@@ -51,6 +51,8 @@ def init_application(app, manager=None):
     else:
         if app_cache is None:
             app_cache = init_app_cache(app.config['MEMCACHE_SERVERS'], app.config['DEBUG'])
+            app.config['app_cache'] = app_cache
+            print('init app_cache')
 
         for authenticator in app.config['AUTHENTICATORS']:
             importlib.import_module(authenticator)

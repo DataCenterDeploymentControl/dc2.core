@@ -63,7 +63,7 @@ class AuthTokenController(BaseController):
             if is_authenticated and user is not None and ip is not None:
                 token = AuthToken()
                 token.user = user
-                token.token = hash_generator('{0}:{1}:{2}'.format(user.username, ip, datetime.datetime.isoformat()))
+                token.token = hash_generator('{0}:{1}:{2}'.format(user.username, ip, datetime.datetime.now().isoformat()))
                 token.is_active = True
                 token = self.add(token)
                 return token

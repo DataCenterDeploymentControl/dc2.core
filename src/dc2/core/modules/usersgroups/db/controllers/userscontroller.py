@@ -45,7 +45,6 @@ class UsersController(BaseController):
         except ImportError as e:
             print(e)
             return None
-
     def new(self, username=None, name=None, email=None, pw=None, grps=[]):
         try:
             password = None
@@ -78,9 +77,9 @@ class UsersController(BaseController):
             print(e)
             return None, None
 
-    def get(self, username=None):
-        if username is not None:
-            user = User.query.filter_by(username=username).first()
+    def get(self, *args, **kwargs):
+        if 'username' in kwargs or 'email' in kwargs or 'id' in kwargs:
+            user = User.query.filter_by(**kwargs).first()
             return user
         return None
 

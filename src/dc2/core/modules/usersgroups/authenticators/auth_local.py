@@ -29,12 +29,15 @@ except ImportError as e:
     raise e
 
 from ..db.controllers import UsersController
-
+print('loaded authenticators')
 
 def do_local_authentication(email=None, password=None):
+    print('do_local_authentication')
     if email is not None and password is not None:
+        print('email and password are not none')
         ctl_users = UsersController()
         user = ctl_users.get(email=email)
+        print(user.to_dict)
         if user is not None:
             if user.password.password == hash_generator(password):
                 return True, user

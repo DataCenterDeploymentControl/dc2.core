@@ -27,11 +27,11 @@ from hashlib import sha512
 __all__ = ['pw_generator', 'hash_generator']
 
 
-def pw_generator(size=8, chars=string.ascii_uppercase+string.ascii_lowercase+string.digits+string.punctuation):
+def pw_generator(size=8, chars=string.ascii_uppercase+string.ascii_lowercase+string.digits):
     """
 
     :param size: int
-    :param chars: string (defaults to string.ascii_uppercase+string.ascii_lowercase+string.digits+string.punctuation
+    :param chars: string (defaults to string.ascii_uppercase+string.ascii_lowercase+string.digits
     :return: (pwstring, sha512 hexdigest string)
 
     """

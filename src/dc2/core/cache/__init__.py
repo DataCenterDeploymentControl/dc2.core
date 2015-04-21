@@ -27,7 +27,9 @@ except ImportError as e:
 
 __all__ = ['init_app_cache', 'app_cache']
 
-app_cache = None
+if 'app_cache' not in globals():
+    app_cache = None
+
 
 def init_app_cache(memcache_servers=None, debug=False):
     if memcache_servers is not None and isinstance(memcache_servers, list):

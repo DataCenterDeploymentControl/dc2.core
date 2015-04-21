@@ -40,12 +40,13 @@ def needs_authentication(f):
         auth_user = request.headers.get('X-DC2-Auth-User')
         if auth_token is not None:
             cache_token = app_cache.get(auth_token)
-            if (cache_token is not None and 'is_authenticated' is cache_token
+            print(cache_token)
+            if (cache_token is not None and 'is_authenticated' in cache_token
                 and cache_token['is_authenticated']
                 and 'user' in cache_token
                 and 'username' in cache_token['user']):
                 if cache_token['user']['username'] == auth_user:
-                    app_cache.set(auth_token, cache_token)
+                    app_cache.set(auth_token, cache_token, 5 * 60)
                     return f(*args, **kwargs)
         abort(401)
     return wrapped

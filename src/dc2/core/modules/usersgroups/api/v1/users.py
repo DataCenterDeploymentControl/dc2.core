@@ -52,10 +52,12 @@ class UserCollection(RestResource):
         super(UserCollection, self).__init__(*args, **kwargs)
         self._ctl_users = UsersController(DB.session)
 
+    @needs_authentication
     def get(self):
         userlist = self._ctl_users.list()
         return [user.to_dict for user in userlist], 200
 
+    @needs_authentication
     def post(self):
         args = _user_parser.parse_args()
         user, pw = self._ctl_users.new(**args)

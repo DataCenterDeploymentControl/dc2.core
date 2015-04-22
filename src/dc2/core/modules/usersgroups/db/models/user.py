@@ -43,4 +43,10 @@ class User(DB.Model):
     def to_dict(self):
         return dict(id=self.id, username=self.username, email=self.email, name=self.name,
                     created_at=self.created_at.isoformat(),
-                    updated_at=self.updated_at.isoformat() if self.updated_at is not None else None)
+                    updated_at=self.updated_at.isoformat() if self.updated_at is not None else None,
+                    groups=self._get_groups())
+
+    def _get_groups(self):
+        if self.groups is not None and len(self.groups) > 0:
+            return [group.groupname for group in self.groups]
+        return []

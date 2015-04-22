@@ -20,10 +20,11 @@
 
 __author__ = 'stephan.adig'
 
-__all__ = ['needs_authentication']
+__all__ = ['needs_authentication', 'has_group']
 
 
 from functools import wraps
+
 
 def needs_authentication(f):
     try:
@@ -40,7 +41,6 @@ def needs_authentication(f):
         auth_user = request.headers.get('X-DC2-Auth-User')
         if auth_token is not None:
             cache_token = app_cache.get(auth_token)
-            print(cache_token)
             if (cache_token is not None and 'is_authenticated' in cache_token
                 and cache_token['is_authenticated']
                 and 'user' in cache_token
@@ -52,3 +52,31 @@ def needs_authentication(f):
     return wrapped
 
 
+def has_groups(groupnames=[]):
+    def has_groups_decorator(f):
+        try:
+            from flask import request
+            from flask_restful import abort
+        except ImportError as e:
+            raise e
+
+        from ...application import app_cache
+
+        @wraps(f)
+        def wrapped(*args, **kwargs):
+            auth_token = request.headers.get('X-DC2-Auth-Token')
+            auth_user = request.headers.get('X-DC2-Auth-User')
+            if auth_token is not None:
+                cache_token = app_cache.get(auth_token)
+                if (cache_token is not None and 'is_authenticated' in cache_token
+                    and cache_token['is_authenticated']
+                    and 'user' in cache_token
+                    and 'username' in cache_token['user']):
+                    if cache_token['user']['username'] == auth_user:
+                        if 'groups' in cache_token['user']:
+                            for usergroup in cache_token['user']['groups']:
+                                if usergroup in groupnames:
+                                    return f(*args, **kwargs)
+            abort(401)
+        return wrapped
+    return has_groups_decorator

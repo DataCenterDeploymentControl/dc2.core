@@ -30,7 +30,7 @@ except ImportError as e:
 try:
     from dc2.core.database import DB
     from dc2.core.helpers import hash_generator
-    from dc2.core.auth.decorators import needs_authentication
+    from dc2.core.auth.decorators import needs_authentication, has_groups
 except ImportError as e:
     raise e
 
@@ -49,10 +49,14 @@ class GroupCollection(RestResource):
         super(GroupCollection, self).__init__(*args, **kwargs)
         self._ctl_groups = GroupsController()
 
+    @needs_authentication
+    @has_groups(['admin'])
     def get(self):
         groupslist = self._ctl_groups.list()
         return [group.to_dict for group in groupslist], 200
 
+    @needs_authentication
+    @has_groups(['admin'])
     def post(self):
         args = _group_parser.parse_args()
         try:
@@ -70,6 +74,8 @@ class GroupRecords(RestResource):
         super(GroupRecords, self).__init__(*args, **kwargs)
         self._ctl_groups = GroupsController()
 
+    @needs_authentication
+    @has_groups(['admin'])
     def get(self, groupname=None):
         if groupname is not None:
             try:
@@ -81,6 +87,8 @@ class GroupRecords(RestResource):
                 return None, 404
         return None, 404
 
+    @needs_authentication
+    @has_groups(['admin'])
     def put(self, groupname=None):
         if groupname is not None:
             args = _group_parser.parse_args()
@@ -95,6 +103,8 @@ class GroupRecords(RestResource):
                 return None, 404
         return None, 404
 
+    @needs_authentication
+    @has_groups(['admin'])
     def delete(self, groupname=None):
         if groupname is not None:
             try:
@@ -106,4 +116,3 @@ class GroupRecords(RestResource):
                 print(e)
                 return None, 404
         return None, 404
-

@@ -30,7 +30,7 @@ except ImportError as e:
 try:
     from dc2.core.database import DB
     from dc2.core.helpers import hash_generator
-    from dc2.core.auth.decorators import needs_authentication
+    from dc2.core.auth.decorators import needs_authentication, has_groups
 except ImportError as e:
     raise e
 
@@ -53,11 +53,13 @@ class UserCollection(RestResource):
         self._ctl_users = UsersController(DB.session)
 
     @needs_authentication
+    @has_groups(['admin'])
     def get(self):
         userlist = self._ctl_users.list()
         return [user.to_dict for user in userlist], 200
 
     @needs_authentication
+    @has_groups(['admin'])
     def post(self):
         args = _user_parser.parse_args()
         user, pw = self._ctl_users.new(**args)
@@ -71,6 +73,8 @@ class UserRecords(RestResource):
         super(UserRecords, self).__init__(*args, **kwargs)
         self._ctl_users = UsersController()
 
+    @needs_authentication
+    @has_groups(['admin'])
     def get(selfself, id=None):
         if id is not None:
             try:
@@ -81,6 +85,8 @@ class UserRecords(RestResource):
                 return {'error': True, 'message': e}, 400
         return {'error': True, 'message': 'No ID or Username'}, 400
 
+    @needs_authentication
+    @has_groups(['admin'])
     def put(self, id=None):
         if id is not None:
             args = _user_parser.parse_args()
@@ -98,12 +104,9 @@ class UserRecords(RestResource):
                 return {'error': True, 'message': e}, 400
         return {'error': True, 'message': 'No ID or Username'}, 400
 
+    @needs_authentication
+    @has_groups(['admin'])
     def delete(self, id=None):
         if id is not None:
             return {}, 200
         return {'error': True, 'message': 'No ID or Username'}, 400
-
-
-
-
-

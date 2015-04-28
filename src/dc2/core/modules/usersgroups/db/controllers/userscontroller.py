@@ -19,6 +19,7 @@
 #
 
 __author__ = 'stephan.adig'
+import sys
 
 try:
     from sqlalchemy.exc import IntegrityError
@@ -66,33 +67,32 @@ class UsersController(BaseController):
                 return None
         return None
 
-    def new(self, username=None, name=None, email=None, pw=None, grps=[]):
+    def new(self, username=None, name=None, email=None, password=None, groups=[]):
         try:
-            password = None
-            groups = None
-            if pw is not None:
-                password = pw
-            if grps is not None and isinstance(grps, list) and len(grps) > 0:
-                groups = grps
+            pw = None
+            grps = None
+            if password is not None:
+                pw = password
+            if groups is not None and isinstance(groups, list) and len(groups) > 0:
+                grps = groups
             record = User(username=username, name=name, email=email)
             print(record)
-            if password is not None:
-                pw = Password(password=hash_generator(password))
-                record.password = pw
+            if pw is not None:
+                pw_rec = Password(password=hash_generator(pw))
+                record.password = pw_rec
             else:
-                password, hashstring = pw_generator(size=12)
+                pw, hashstring = pw_generator(size=12)
                 record.password = Password(password=hashstring)
-            if groups is not None and isinstance(groups, list):
-                groups_record = self._ctl_groups.find_in_groupnames(groups)
+            if grps is not None and isinstance(grps, list):
+                groups_record = self._ctl_groups.find_in_groupnames(grps)
                 if groups_record is None:
                     return None, None
                 record.groups = groups_record
             try:
                 record = self.add(record)
-                return record, password
+                return record, pw
             except Exception as e:
-                print(e)
-                print("exception")
+                print(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2].tb_lineno)
                 return None, None
         except Exception as e:
             print(e)
@@ -111,4 +111,12 @@ class UsersController(BaseController):
             return user
         return None
 
-
+    def delete(self, record=None):
+        if record is not None:
+            try:
+                self._session.delete(record)
+                self._session.commit()
+                return True
+            except Exception as e:
+                return False
+        return False

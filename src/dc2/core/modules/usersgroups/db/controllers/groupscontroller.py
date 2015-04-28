@@ -42,9 +42,9 @@ class GroupsController(BaseController):
 
     def find(self, *args, **kwargs):
         if 'id' not in kwargs and 'groupname' not in kwargs:
-            raise ValueError('id or groupnmae need to be given')
+            raise ValueError('id or groupname need to be given')
         try:
-            groups = self._session.query(Group).filter_by(**kwargs).all()
+            groups = Group.query.filter_by(**kwargs).all()
             return groups
         except Exception as e:
             print(e)

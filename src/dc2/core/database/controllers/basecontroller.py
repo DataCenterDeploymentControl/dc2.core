@@ -20,7 +20,7 @@
 
 __author__ = 'stephan.adig'
 
-
+from sqlalchemy.exc import IntegrityError
 from ..base import DB
 class BaseController(object):
 

@@ -19,6 +19,7 @@
 #
 
 __author__ = 'stephan.adig'
+import sys
 
 try:
     from flask_restful import Resource as RestResource
@@ -43,6 +44,9 @@ _group_parser = RequestParser()
 _group_parser.add_argument('groupname', type=str, help="Groupname", required=True, location="json")
 _group_parser.add_argument('desc', type=str, help="Description", required=False, default="No Description", location="json")
 
+_group_find_parser = RequestParser()
+_group_find_parser.add_argument('groupname', type=str, default=None, help="Groupname", required=False, location="args")
+
 
 class GroupCollection(RestResource):
     def __init__(self, *args, **kwargs):
@@ -52,7 +56,12 @@ class GroupCollection(RestResource):
     @needs_authentication
     @has_groups(['admin'])
     def get(self):
-        groupslist = self._ctl_groups.list()
+        args = _group_find_parser.parse_args()
+        groupslist = []
+        if args.groupname is None:
+            groupslist = self._ctl_groups.list()
+        else:
+            groupslist = self._ctl_groups.find_by_groupname(groupname=args.groupname)
         return [group.to_dict for group in groupslist], 200
 
     @needs_authentication
@@ -61,12 +70,14 @@ class GroupCollection(RestResource):
         args = _group_parser.parse_args()
         try:
             group = self._ctl_groups.new(args.groupname, args.desc)
-            result = {'group': group.to_dict}
-            return result, 201
+            if group is not None:
+                result = {'group': group.to_dict}
+                return result, 201
+            return {'error': True, 'message': 'Something went wrong'}, 404
         except Exception as e:
             # TODO: Change to logger
-            print(e)
-            return None, 404
+            print(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2].tb_lineno)
+            return {'error': True, 'message': e}, 404
 
 
 class GroupRecords(RestResource):
@@ -109,8 +120,11 @@ class GroupRecords(RestResource):
         if groupname is not None:
             try:
                 group = self._ctl_groups.get(groupname=groupname)
-                self._ctl_groups.delete(group)
-                return True, 200
+                if group is not None:
+                    self._ctl_groups.delete(group)
+                    return True, 200
+                else:
+                    return None, 404
             except Exception as e:
                 # TODO: Change to logger
                 print(e)

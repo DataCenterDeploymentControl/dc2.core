@@ -46,6 +46,9 @@ _user_parser.add_argument('name', type=str, help="Name", default="No Name", requ
 _user_parser.add_argument('password', type=str, help="Password", default=None, required=False, location="json")
 _user_parser.add_argument('groups', type=list, help="Groupnames", default=None, required=False, location="json")
 
+_user_list_parser = RequestParser()
+_user_list_parser.add_argument('username', type=str, default=None, help="Username", required=False, location="args")
+_user_list_parser.add_argument('email', type=str, default=None, help="Email Address", required=False, location="args")
 
 class UserCollection(RestResource):
     def __init__(self, *args, **kwargs):
@@ -55,7 +58,15 @@ class UserCollection(RestResource):
     @needs_authentication
     @has_groups(['admin'])
     def get(self):
-        userlist = self._ctl_users.list()
+        args = _user_list_parser.parse_args()
+        userlist = []
+        print(args)
+        if args.username is not None and args.email is None:
+            userlist = self._ctl_users.find_by_username(args.username)
+        elif args.username is None and args.email is not None:
+            userlist = self._ctl_users.find_by_email(args.email)
+        else:
+            userlist = self._ctl_users.list()
         return [user.to_dict for user in userlist], 200
 
     @needs_authentication

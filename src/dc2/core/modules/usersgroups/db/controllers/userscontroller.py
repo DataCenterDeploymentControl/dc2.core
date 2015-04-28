@@ -42,9 +42,30 @@ class UsersController(BaseController):
         try:
             result = User.query.all()
             return result
-        except ImportError as e:
+        except Exception as e:
             print(e)
             return None
+
+    def find_by_username(self, username=None):
+        if username is not None:
+            try:
+                result = User.query.filter_by(username=username).all()
+                return result
+            except Exception as e:
+                print(e)
+                return None
+        return None
+
+    def find_by_email(self, email=None):
+        if email is not None:
+            try:
+                result = User.query.filter_by(email=email).all()
+                return result
+            except Exception as e:
+                print(e)
+                return None
+        return None
+
     def new(self, username=None, name=None, email=None, pw=None, grps=[]):
         try:
             password = None

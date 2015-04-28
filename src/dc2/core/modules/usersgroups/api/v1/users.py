@@ -23,6 +23,7 @@ __author__ = 'stephan.adig'
 try:
     from flask_restful import Resource as RestResource
     from flask_restful.reqparse import RequestParser
+    from flask import request
 except ImportError as e:
     raise e
 
@@ -72,10 +73,15 @@ class UserCollection(RestResource):
     @needs_authentication
     @has_groups(['admin'])
     def post(self):
+        print(request.get_data())
         args = _user_parser.parse_args()
         user, pw = self._ctl_users.new(**args)
-        result = {'user': user.to_dict, 'password': pw}
-        return result, 201
+        if user is not None:
+            result = {'user': user.to_dict, 'password': pw}
+            return result, 201
+        else:
+            return {'error': True,
+                    'message': 'An error occured'}, 404
 
 
 class UserRecords(RestResource):
@@ -118,6 +124,18 @@ class UserRecords(RestResource):
     @needs_authentication
     @has_groups(['admin'])
     def delete(self, id=None):
+        print('Hello')
         if id is not None:
-            return {}, 200
+            result = self._ctl_users.find_by_username(username=id)
+            if result is not None and len(result) > 0:
+                success = self._ctl_users.delete(result[0])
+                return success, 200
+            result = self._ctl_users.find_by_email(email=id)
+            if result is not None and len(result) > 0:
+                success = self._ctl_users.delete(result[0])
+                return success, 200
+            result = self._ctl_users.find(id=id)
+            if result is not None and len(result) > 0:
+                success = self._ctl_users.delete(result[0])
+                return success, 200
         return {'error': True, 'message': 'No ID or Username'}, 400

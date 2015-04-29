@@ -27,6 +27,7 @@ from dc2.core.manager.globals import add_seed_method
 from ..db.controllers import UsersController
 from ..db.controllers import GroupsController
 
+
 def seed_initialize_user():
     print('Initialize Users')
     print('Checking for Admin User')
@@ -34,7 +35,7 @@ def seed_initialize_user():
 
     admin = ctl_user.get(username='admin')
     if admin is None:
-        admin, password = ctl_user.new(username="admin", email="admin@domain.tld", name="Admin User", grps=['admin'])
+        admin, password = ctl_user.new(username="admin", email="admin@domain.tld", name="Admin User", groups=['admin'])
         print('Created Admin User: {0}'.format(admin.to_dict))
         print('Password for admin user: "{0}"'.format(password))
         if admin is not None:
@@ -42,19 +43,28 @@ def seed_initialize_user():
         return False
     return True
 
+
 def seed_initialize_groups():
     print('Initialize Groups')
     print('Checking for Admin Group')
     ctl_grps = GroupsController()
     admin_grp = ctl_grps.get(groupname="admin")
+    user_grp = ctl_grps.get(groupname="users")
     if admin_grp is None:
         admin_grp = ctl_grps.new(groupname="admin", description="Admin Group")
         print("Admin Group Created: ({0}".format(admin_grp.to_dict))
-        return True
     else:
         print("Admin group already exists!")
         return True
+    if user_grp is None:
+        users_grp = ctl_grps.new(groupname="users", description="Users Group")
+        print("User Group Created: ({0}".format(user_grp.to_dict))
+        return True
+    else:
+        print("User group already exists!")
+        return True
     return False
+
 
 def init_seed_commands():
     add_seed_method('usersgroups', 'initialize', '02_seed_initialize_user', seed_initialize_user)

@@ -39,7 +39,11 @@ def do_local_authentication(email=None, password=None):
         user = ctl_users.get(email=email)
         print(user.to_dict)
         if user is not None:
+            print(user.password.password)
+            print(hash_generator(password))
             if user.password.password == hash_generator(password):
+                print(user.password.password)
+                print(hash_generator(password))
                 return True, user
         return False, None
 

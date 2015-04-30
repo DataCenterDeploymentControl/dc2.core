@@ -76,7 +76,6 @@ class UsersController(BaseController):
             if groups is not None and isinstance(groups, list) and len(groups) > 0:
                 grps = groups
             record = User(username=username, name=name, email=email)
-            print(record)
             if pw is not None:
                 pw_rec = Password(password=hash_generator(pw))
                 record.password = pw_rec

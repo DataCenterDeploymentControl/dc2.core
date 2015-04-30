@@ -22,7 +22,7 @@ __author__ = 'stephan.adig'
 
 
 try:
-    from flask import request
+    from flask import request, g, abort
     from flask_restful import Resource as RestResource
     from flask_restful.reqparse import RequestParser
     from flask_restful.inputs import boolean
@@ -51,7 +51,16 @@ class Authenticate(RestResource):
 
     def post(self):
         args = _auth_parser.parse_args()
+        print('login')
         try:
+            if g.get('auth_token', None) is not None and g.get('auth_user', None) is not None:
+                old_token = self._ctl_auth.find(user=g.auth_user)
+                old_token.is_active = False
+                self._ctl_auth.update(old_token)
+                if app_cache.get(old_token.token) is not None:
+                    app_cache.delete(old_token.token)
+                del g.auth_token
+                del g.auth_user
             if args.auth_type.lower() in AUTH_TYPES:
                 is_authenticated, user = AUTH_TYPE_METHODS[args.auth_type.lower()]['authfunc'](email=args.email, password=args.password)
 
@@ -72,6 +81,7 @@ class Authenticate(RestResource):
                             'user': user.to_dict
                         }, 200, {'X-DC2-Auth-Token': token.token,
                                  'X-DC2-Auth-User': user.username}
+                return {'error': True, 'message': 'Not Authenticated'}, 401
         except Exception as e:
             # TODO: Change to logger
             print(e)

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 #
-# (DC)² - DataCenter Deployment Control
+# DataCenter Deployment Control
 # Copyright (C) 2010, 2011, 2012, 2013, 2014  Stephan Adig <sh@sourcecode.de>
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ except ImportError as e:
 
 
 try:
+    from dc2.core.application import app
     from dc2.core.database import DB
     from dc2.core.helpers import hash_generator
     from dc2.core.auth.decorators import needs_authentication, has_groups
@@ -61,45 +62,54 @@ class UserCollection(RestResource):
     def get(self):
         args = _user_list_parser.parse_args()
         userlist = []
-        print(args)
-        if args.username is not None and args.email is None:
-            userlist = self._ctl_users.find_by_username(args.username)
-        elif args.username is None and args.email is not None:
-            userlist = self._ctl_users.find_by_email(args.email)
-        else:
-            userlist = self._ctl_users.list()
-        return [user.to_dict for user in userlist], 200
+        try:
+            if args.username is not None and args.email is None:
+                userlist = self._ctl_users.find_by_username(args.username)
+            elif args.username is None and args.email is not None:
+                userlist = self._ctl_users.find_by_email(args.email)
+            else:
+                userlist = self._ctl_users.list()
+            return [user.to_dict for user in userlist], 200
+        except Exception as e:
+            app.logger.exception(msg="Exception occured")
+            return {'error': True,
+                    'message': e.args}, 400
 
     @needs_authentication
     @has_groups(['admin'])
     def post(self):
         print(request.get_data())
         args = _user_parser.parse_args()
-        user, pw = self._ctl_users.new(**args)
-        if user is not None:
-            result = {'user': user.to_dict, 'password': pw}
-            return result, 201
-        else:
+        try:
+            user, pw = self._ctl_users.new(**args)
+            if user is not None:
+                result = {'user': user.to_dict, 'password': pw}
+                return result, 201
+            else:
+                return {'error': True,
+                        'message': 'An error occured'}, 400
+        except Exception as e:
+            app.logger.exception(msg="Exception occured")
             return {'error': True,
-                    'message': 'An error occured'}, 404
+                'message': e.args}, 400
 
 
 class UserRecords(RestResource):
 
     def __init__(self, *args, **kwargs):
         super(UserRecords, self).__init__(*args, **kwargs)
-        self._ctl_users = UsersController()
+        self._ctl_users = UsersController(DB.session)
 
     @needs_authentication
     @has_groups(['admin'])
-    def get(selfself, id=None):
+    def get(self, id=None):
         if id is not None:
             try:
                 user = self._ctl_users.get(username=id)
                 return user.to_dict, 200
             except Exception as e:
-                print(e)
-                return {'error': True, 'message': e}, 400
+                app.logger.exception(msg="Exception occured")
+                return {'error': True, 'message': e.args}, 400
         return {'error': True, 'message': 'No ID or Username'}, 400
 
     @needs_authentication
@@ -117,25 +127,55 @@ class UserRecords(RestResource):
                 self._ctl_users.update(user)
                 return user.to_dict, 200
             except Exception as e:
-                print(e)
-                return {'error': True, 'message': e}, 400
+                app.logger.exception(msg="Exception occured")
+                return {'error': True, 'message': e.args}, 400
         return {'error': True, 'message': 'No ID or Username'}, 400
 
     @needs_authentication
     @has_groups(['admin'])
     def delete(self, id=None):
-        print('Hello')
         if id is not None:
-            result = self._ctl_users.find_by_username(username=id)
-            if result is not None and len(result) > 0:
-                success = self._ctl_users.delete(result[0])
-                return success, 200
-            result = self._ctl_users.find_by_email(email=id)
-            if result is not None and len(result) > 0:
-                success = self._ctl_users.delete(result[0])
-                return success, 200
-            result = self._ctl_users.find(id=id)
-            if result is not None and len(result) > 0:
-                success = self._ctl_users.delete(result[0])
-                return success, 200
+            try:
+                result = self._ctl_users.find_by_username(username=id)
+                if result is not None and len(result) > 0:
+                    success = self._ctl_users.set_deleted(result[0])
+                    return {'status': success}, 200
+                result = self._ctl_users.find_by_email(email=id)
+                if result is not None and len(result) > 0:
+                    success = self._ctl_users.set_deleted(result[0])
+                    return {'status': success}, 200
+                result = self._ctl_users.find(id=id)
+                if result is not None and len(result) > 0:
+                    success = self._ctl_users.set_deleted(result[0])
+                    return {'status': success}, 200
+            except Exception as e:
+                app.logger.exception(msg="Exception occured")
+                return {'error': True,
+                        'message': e.args}, 400
         return {'error': True, 'message': 'No ID or Username'}, 400
+
+
+class UserEnable(RestResource):
+    def __init__(self, *args, **kwargs):
+        super(UserEnable, self).__init__(*args, **kwargs)
+        self._ctl_users = UsersController(DB.session)
+
+    @needs_authentication
+    @has_groups(['admin'])
+    def get(self, id=None, state=None):
+        if id is not None and state is not None:
+            try:
+                user = self._ctl_users.get(username=id)
+                if user is not None:
+                    if state.lower() == 'enable':
+                        if self._ctl_users.set_enabled(user):
+                            return {'status': True}, 200
+                    elif state.lower() == 'disable':
+                        if self._ctl_users.set_disabled(user):
+                            return {'status': True}, 200
+                return {'error': True, 'message': 'Something wrong happened'}, 400
+            except Exception as e:
+                app.logger.exception(msg="Exception Occured")
+                return {'error': True, 'message': e.args}, 400
+        return {'error': True, 'message': 'No ID or Username'}, 400
+

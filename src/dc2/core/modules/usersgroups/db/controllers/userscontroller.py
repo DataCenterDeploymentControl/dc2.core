@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 #
-# (DC)² - DataCenter Deployment Control
+# DataCenter Deployment Control
 # Copyright (C) 2010, 2011, 2012, 2013, 2014  Stephan Adig <sh@sourcecode.de>
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ try:
 except ImportError as e:
     raise e
 
+from dc2.core.application import app
 from dc2.core.helpers import pw_generator, hash_generator
 from dc2.core.database.controllers import BaseController
 from ..controllers import GroupsController
@@ -105,17 +106,52 @@ class UsersController(BaseController):
 
     def add_groups(self, user=None, groupnames=None):
         if user is not None and groupnames is not None and isinstance(groupnames, list):
-            groups = self._ctl_groups.find_in(groupnames)
+            groups = self._ctl_groups.find_in_groupnames(groupnames)
+            print(groups)
             user.groups = groups
             return user
         return None
 
+    def set_deleted(self, record=None):
+        if record is not None:
+            try:
+                record.is_deleted = True
+                self._session.commit()
+            except Exception as e:
+                app.logger.exception(msg='Exception Occured')
+                return {'error':True, 'message': e.args}, 400
+        return {'error':True, 'message': 'Record was none'}, 400
+
+    def set_enabled(self, record=None):
+        if record is not None:
+            try:
+                record.is_deleted = False
+                self._session.commit()
+                return True
+            except Exception as e:
+                app.logger.exception(msg="Exception Occured")
+                return False
+        return False
+
+    def set_disabled(self, record=None):
+        if record is not None:
+            try:
+                record.is_deleted = True
+                self._session.commit()
+                return True
+            except Exception as e:
+                app.logger.exception(msg="Exception occured")
+                return False
+        return False
+
     def delete(self, record=None):
         if record is not None:
             try:
+                # record.is_deleted = True
                 self._session.delete(record)
                 self._session.commit()
                 return True
             except Exception as e:
+                app.logger.exception(msg="Exception occured")
                 return False
         return False

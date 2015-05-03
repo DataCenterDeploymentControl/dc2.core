@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 #
-# DataCenter Deployment Control
+# (DC)² - DataCenter Deployment Control
 # Copyright (C) 2010, 2011, 2012, 2013, 2014  Stephan Adig <sh@sourcecode.de>
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,37 +19,21 @@
 #
 
 __author__ = 'stephan.adig'
-try:
-    from flask import Blueprint
-    from flask_restful import Api
-except ImportError as e:
-    raise e
 
-try:
-    from dc2.core.application import app
-except ImportError as e:
-    raise e
+__all__ = ['init_logger']
 
 
-__all__ = ['init_blueprint', 'init_manager_commands']
-
-if 'RUN_VIA_MANAGER' in app.config and app.config['RUN_VIA_MANAGER']:
-    from .db import models
-
-from .api import init_endpoints
+from logging import Formatter
+from logging import FileHandler
 
 
-def init_blueprint(module=None):
-    if module is not None:
-        bp = Blueprint(module['name'], module['import_name'])
-        bp_api = Api(bp)
-        init_endpoints(bp_api)
-        return bp
+def init_logger(filename=None):
+    handler = None
+    if filename is not None:
+        handler = FileHandler(filename)
+        handler.setFormatter(Formatter(
+            '%(asctime)s %(levelname)s: %(message)s '
+            '[in %(pathname)s:%(lineno)d]'
+        ))
+        return handler
     return None
-
-
-def init_manager_commands(manager=None):
-    if manager is None:
-        raise ValueError('manager can not be None')
-    pass
-

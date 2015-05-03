@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 #
-# (DC)² - DataCenter Deployment Control
+# DataCenter Deployment Control
 # Copyright (C) 2010, 2011, 2012, 2013, 2014  Stephan Adig <sh@sourcecode.de>
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -49,6 +49,7 @@ def seed_initialize_groups():
     print('Checking for Admin Group')
     ctl_grps = GroupsController()
     admin_grp = ctl_grps.get(groupname="admin")
+    print('Checking for Users Group')
     user_grp = ctl_grps.get(groupname="users")
     if admin_grp is None:
         admin_grp = ctl_grps.new(groupname="admin", description="Admin Group")
@@ -57,7 +58,7 @@ def seed_initialize_groups():
         print("Admin group already exists!")
         return True
     if user_grp is None:
-        users_grp = ctl_grps.new(groupname="users", description="Users Group")
+        user_grp = ctl_grps.new(groupname="users", description="Users Group")
         print("User Group Created: ({0}".format(user_grp.to_dict))
         return True
     else:

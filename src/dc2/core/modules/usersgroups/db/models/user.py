@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 #
-# (DC)² - DataCenter Deployment Control
+# DataCenter Deployment Control
 # Copyright (C) 2010, 2011, 2012, 2013, 2014  Stephan Adig <sh@sourcecode.de>
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -38,13 +38,15 @@ class User(DB.Model):
     created_at = DB.Column(DB.DateTime, default=datetime.datetime.now())
     updated_at = DB.Column(DB.DateTime, onupdate=datetime.datetime.now())
     groups = DB.relationship("Group", secondary='users2groups')
+    is_deleted = DB.Column(DB.Boolean, default=False)
+    authtoken = DB.relationship('AuthToken', uselist=False, cascade="delete")
 
     @property
     def to_dict(self):
         return dict(id=self.id, username=self.username, email=self.email, name=self.name,
                     created_at=self.created_at.isoformat(),
                     updated_at=self.updated_at.isoformat() if self.updated_at is not None else None,
-                    groups=self._get_groups())
+                    groups=self._get_groups(),is_deleted=self.is_deleted)
 
     def _get_groups(self):
         if self.groups is not None and len(self.groups) > 0:

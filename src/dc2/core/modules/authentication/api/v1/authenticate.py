@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 #
-# (DC)² - DataCenter Deployment Control
+# DataCenter Deployment Control
 # Copyright (C) 2010, 2011, 2012, 2013, 2014  Stephan Adig <sh@sourcecode.de>
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@ try:
     from dc2.core.database import DB
     from dc2.core.application import app_cache
     from dc2.core.auth import AUTH_TYPES, AUTH_TYPE_METHODS
+    from dc2.core.auth.decorators import needs_authentication
 except ImportError as e:
     raise e
 
@@ -87,3 +88,11 @@ class Authenticate(RestResource):
             print(e)
             return None, 404
 
+class AuthenticationCheck(RestResource):
+
+    def __init__(self, *args, **kwargs):
+        super(AuthenticationCheck, self).__init__(*args, **kwargs)
+
+    @needs_authentication
+    def get(self):
+        return {'status': True}, 200

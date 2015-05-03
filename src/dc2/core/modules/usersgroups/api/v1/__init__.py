@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 #
-# (DC)² - DataCenter Deployment Control
+# DataCenter Deployment Control
 # Copyright (C) 2010, 2011, 2012, 2013, 2014  Stephan Adig <sh@sourcecode.de>
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 
 __author__ = 'stephan.adig'
 
-from .users import UserCollection, UserRecords
+from .users import UserCollection, UserRecords, UserEnable
 from .groups import GroupCollection, GroupRecords
 
 
@@ -29,5 +29,6 @@ def init_versioned_endpoints(bp_api=None):
         raise ValueError('bp_api can not be None')
     bp_api.add_resource(UserCollection, '/v1/users')
     bp_api.add_resource(UserRecords, '/v1/users/<string:id>')
+    bp_api.add_resource(UserEnable, '/v1/users/<string:id>/<string:state>')
     bp_api.add_resource(GroupCollection, '/v1/groups')
     bp_api.add_resource(GroupRecords, '/v1/groups/<string:groupname>')

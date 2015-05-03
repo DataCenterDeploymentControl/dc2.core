@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 #
-# (DC)² - DataCenter Deployment Control
+# DataCenter Deployment Control
 # Copyright (C) 2010, 2011, 2012, 2013, 2014  Stephan Adig <sh@sourcecode.de>
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -33,12 +33,20 @@ app = Flask(__name__)
 
 from ..database import init_db
 from ..cache import init_app_cache, app_cache
-
+from ..helpers import init_logger
 
 def init_application(app, manager=None):
     global app_cache
     app.config.from_envvar("DC2_CONFIGURATION")
     init_db(app)
+    handler = None
+    if 'LOGFILE' in app.config:
+        handler = init_logger(app.config['LOGFILE'])
+    else:
+        handler = init_logger('application.log')
+    if handler is not None:
+        app.logger.addHandler(handler)
+
     if 'RUN_VIA_MANAGER' in app.config and app.config['RUN_VIA_MANAGER'] and manager is not None:
         # import Manager applications
         for module in app.config['MODULES']:
@@ -78,3 +86,4 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
     response.headers.add('Access-Control-Expose-Headers', 'X-DC2-Auth-Token,X-DC2-Auth-User')
     return response
+

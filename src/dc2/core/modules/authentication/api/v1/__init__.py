@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 #
-# (DC)² - DataCenter Deployment Control
+# DataCenter Deployment Control
 # Copyright (C) 2010, 2011, 2012, 2013, 2014  Stephan Adig <sh@sourcecode.de>
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,10 +20,11 @@
 
 __author__ = 'stephan.adig'
 
-from .authenticate import Authenticate
+from .authenticate import Authenticate, AuthenticationCheck
 
 
 def init_versioned_endpoints(bp_api=None):
     if bp_api is None:
         raise ValueError('bp_api can not be None')
     bp_api.add_resource(Authenticate, '/v1/login')
+    bp_api.add_resource(AuthenticationCheck, '/v1/authcheck')

@@ -20,8 +20,15 @@
 
 __author__ = 'stephan.adig'
 
-from sqlalchemy.exc import IntegrityError
+try:
+    from sqlalchemy.exc import IntegrityError
+except ImportError as e:
+    raise(e)
+
+
 from ..base import DB
+
+
 class BaseController(object):
 
     def __init__(self, session=None):
@@ -48,8 +55,7 @@ class BaseController(object):
                 self._session.commit()
                 return record
         except IntegrityError as e:
-            print(e)
-            return None
+            raise e
 
     def add(self, record=None):
         result = self._add_or_update(record)

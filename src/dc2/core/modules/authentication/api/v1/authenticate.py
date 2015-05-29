@@ -95,4 +95,15 @@ class AuthenticationCheck(RestResource):
 
     @needs_authentication
     def get(self):
-        return {'status': True}, 200
+        try:
+            if g.get('auth_token', None) is not None and g.get('auth_user', None) is not None:
+                old_token = self._ctl_auth.find(user=g.auth_user)
+                if old_token.is_active:
+                    if app_cache.get(old_token.token) is not None:
+                        return {'status': True}, 200
+                    else:
+                        return {'status': False}, 200
+        except Exception as e:
+            # TODO: Change to logger
+            print(e)
+            return {'status': False}, 200

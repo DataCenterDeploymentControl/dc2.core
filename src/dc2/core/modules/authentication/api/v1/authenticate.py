@@ -32,6 +32,7 @@ except ImportError as e:
 from dc2.core.modules.authentication.db.controllers import AuthTokenController
 
 try:
+    from dc2.core.application import app
     from dc2.core.database import DB
     from dc2.core.application import app_cache
     from dc2.core.auth import AUTH_TYPES, AUTH_TYPE_METHODS
@@ -92,18 +93,18 @@ class AuthenticationCheck(RestResource):
 
     def __init__(self, *args, **kwargs):
         super(AuthenticationCheck, self).__init__(*args, **kwargs)
+        self._ctl_auth = AuthTokenController()
 
     @needs_authentication
     def get(self):
         try:
+            print(g.get('auth_token'))
             if g.get('auth_token', None) is not None and g.get('auth_user', None) is not None:
-                old_token = self._ctl_auth.find(user=g.auth_user)
-                if old_token.is_active:
-                    if app_cache.get(old_token.token) is not None:
-                        return {'status': True}, 200
-                    else:
-                        return {'status': False}, 200
+                cache_token = app_cache.get(g.get('auth_token'))
+                if cache_token is not None:
+                    return {'status': True}, 200
+            return {'status': False}, 401
         except Exception as e:
             # TODO: Change to logger
-            print(e)
-            return {'status': False}, 200
+            app.logger.exception(msg="Exception occured")
+            return {'status': False}, 404

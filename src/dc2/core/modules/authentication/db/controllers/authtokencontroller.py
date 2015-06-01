@@ -39,6 +39,7 @@ except ImportError as e:
     raise e
 
 from ..models import AuthToken
+from dc2.core.modules.usersgroups.db.models import User
 
 class AuthTokenController(BaseController):
     def __init__(self, session=None):
@@ -55,6 +56,16 @@ class AuthTokenController(BaseController):
             return result
         except Exception as e:
             # TODO; Change to Logger
+            print(e)
+            return None
+
+    def find_by_username(self, username=None):
+        try:
+            if username is not None:
+                user = User.query.filter_by(username=username).first()
+                result = AuthToken.query.filter_by(user=user, is_active=True).first()
+                return result
+        except Exception:
             print(e)
             return None
 

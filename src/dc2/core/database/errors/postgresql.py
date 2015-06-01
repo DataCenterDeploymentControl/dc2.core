@@ -34,7 +34,6 @@ SQL_ERROR_TRANSLATION = {
 
 def lookup_error(engine='postgres', exc=None):
     if exc is None:
-
         raise ValueError('exc can not be None')
     if engine.lower() == 'postgres':
         error_name = psql_lookup(exc.orig.pgerror)

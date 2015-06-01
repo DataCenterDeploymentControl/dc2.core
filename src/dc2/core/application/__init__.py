@@ -83,7 +83,7 @@ def init_application(app, manager=None):
 def after_request(response):
     response.headers.add('Access-Control-Allow-Origin', '*')
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-DC2-Auth-Token,X-DC2-Auth-User')
-    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
+    response.headers.add('Access-Control-Allow-Methods', '  GET,PUT,POST,DELETE')
     response.headers.add('Access-Control-Expose-Headers', 'X-DC2-Auth-Token,X-DC2-Auth-User')
     return response
 

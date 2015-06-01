@@ -54,6 +54,7 @@ def needs_authentication(f):
                         return f(*args, **kwargs)
             abort(401)
         else:
+            print('token is available')
             cache_token = app_cache.get(g.auth_token)
             if cache_token is None:
                 del g.auth_token

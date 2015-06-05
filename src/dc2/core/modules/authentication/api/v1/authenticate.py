@@ -85,8 +85,7 @@ class Authenticate(RestResource):
                                  'X-DC2-Auth-User': user.username}
                 return {'error': True, 'message': 'Not Authenticated'}, 401
         except Exception as e:
-            # TODO: Change to logger
-            print(e)
+            app.logger.exception(msg="Exception Occured")
             return None, 404
 
 class AuthenticationCheck(RestResource):
@@ -105,6 +104,5 @@ class AuthenticationCheck(RestResource):
                     return {'status': True}, 200
             return {'status': False}, 401
         except Exception as e:
-            # TODO: Change to logger
             app.logger.exception(msg="Exception occured")
             return {'status': False}, 404
